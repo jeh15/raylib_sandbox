@@ -1,2 +1,2 @@
 common --enable_bzlmod
---copt='-std=c23' 
+--cxxopt='-std=c++23'
