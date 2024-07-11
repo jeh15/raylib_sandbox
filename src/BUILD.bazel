@@ -1,6 +1,9 @@
 cc_binary(
     name = "main",
     srcs = ["main.c"],
+    data = [
+        "//assets/ninja_adventure_assets/Actor/Characters/NinjaGreen:ninja_green_assets",
+    ],
     deps = [
         "@raylib-bazel//:raylib",
     ],

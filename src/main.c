@@ -1,28 +1,20 @@
 /*******************************************************************************************
 *
-*   raylib [core] example - 2D Camera platformer
+*   raylib [textures] example - sprite sprite_sheet
 *
-*   Example originally created with raylib 2.5, last time updated with raylib 3.0
-*
-*   Example contributed by arvyy (@arvyy) and reviewed by Ramon Santamaria (@raysan5)
+*   Example originally created with raylib 2.5, last time updated with raylib 3.5
 *
 *   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
 *   BSD-like license that allows static linking with closed source software
 *
-*   Copyright (c) 2019-2024 arvyy (@arvyy)
+*   Copyright (c) 2019-2024 Anata and Ramon Santamaria (@raysan5)
 *
 ********************************************************************************************/
 #include <stdbool.h>
 #include "raylib.h"
 
-#define G 400
-#define PLAYER_JUMP_SPD 350.0f
-#define PLAYER_HOR_SPD 200.0f
-
-//------------------------------------------------------------------------------------------
-// Types and Structures Definition
-//------------------------------------------------------------------------------------------
-typedef enum GameScreen { LOGO = 0, TITLE, GAMEPLAY, ENDING } GameScreen;
+#define NUM_FRAMES_PER_LINE     5
+#define NUM_LINES               5
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -34,15 +26,25 @@ bool main(void)
     const int screenWidth = 800;
     const int screenHeight = 450;
 
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic screen manager");
+    InitWindow(screenWidth, screenHeight, "raylib [textures] example - sprite sprite_sheet");
 
-    GameScreen currentScreen = LOGO;
+    // Load sprite_sheet texture
+    char filepath[] = "assets/ninja_adventure_assets/Actor/Characters/NinjaGreen/SpriteSheet.png";
+    Texture2D sprite_sheet = LoadTexture(filepath);
 
-    // TODO: Initialize all required variables and load all required data here!
+    // Init variables for animation
+    float frameWidth = (float)(sprite_sheet.width/NUM_FRAMES_PER_LINE);   // Sprite one frame rectangle width
+    float frameHeight = (float)(sprite_sheet.height/NUM_LINES);           // Sprite one frame rectangle height
+    int currentFrame = 0;
+    int currentLine = 0;
 
-    int framesCounter = 0;          // Useful to count frames
+    Rectangle frameRec = { 0, 0, frameWidth, frameHeight };
+    Vector2 position = { 0.0f, 0.0f };
 
-    SetTargetFPS(60);               // Set desired framerate (frames-per-second)
+    bool active = false;
+    int framesCounter = 0;
+
+    SetTargetFPS(120);
     //--------------------------------------------------------------------------------------
 
     // Main game loop
@@ -50,108 +52,65 @@ bool main(void)
     {
         // Update
         //----------------------------------------------------------------------------------
-        switch(currentScreen)
+
+        // Check for mouse button pressed and activate sprite_sheet (if not active)
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !active)
         {
-            case LOGO:
-            {
-                // TODO: Update LOGO screen variables here!
+            position = GetMousePosition();
+            active = true;
 
-                framesCounter++;    // Count frames
+            position.x -= frameWidth/2.0f;
+            position.y -= frameHeight/2.0f;
 
-                // Wait for 2 seconds (120 frames) before jumping to TITLE screen
-                if (framesCounter > 120)
-                {
-                    currentScreen = TITLE;
-                }
-            } break;
-            case TITLE:
-            {
-                // TODO: Update TITLE screen variables here!
-
-                // Press enter to change to GAMEPLAY screen
-                if (IsKeyPressed(KEY_ENTER) || IsGestureDetected(GESTURE_TAP))
-                {
-                    currentScreen = GAMEPLAY;
-                }
-            } break;
-            case GAMEPLAY:
-            {
-                // TODO: Update GAMEPLAY screen variables here!
-
-                // Press enter to change to ENDING screen
-                if (IsKeyPressed(KEY_ENTER) || IsGestureDetected(GESTURE_TAP))
-                {
-                    currentScreen = ENDING;
-                }
-            } break;
-            case ENDING:
-            {
-                // TODO: Update ENDING screen variables here!
-
-                // Press enter to return to TITLE screen
-                if (IsKeyPressed(KEY_ENTER) || IsGestureDetected(GESTURE_TAP))
-                {
-                    currentScreen = TITLE;
-                }
-            } break;
-            default: break;
         }
+
+        // Compute sprite_sheet animation frames
+        if (active)
+        {
+            framesCounter++;
+
+            if (framesCounter > 2)
+            {
+                currentFrame++;
+
+                if (currentFrame >= NUM_FRAMES_PER_LINE)
+                {
+                    currentFrame = 0;
+                    currentLine++;
+
+                    if (currentLine >= NUM_LINES)
+                    {
+                        currentLine = 0;
+                        active = false;
+                    }
+                }
+
+                framesCounter = 0;
+            }
+        }
+
+        frameRec.x = frameWidth*currentFrame;
+        frameRec.y = frameHeight*currentLine;
         //----------------------------------------------------------------------------------
 
         // Draw
         //----------------------------------------------------------------------------------
         BeginDrawing();
-        {
 
             ClearBackground(RAYWHITE);
 
-            switch(currentScreen)
-            {
-                case LOGO:
-                {
-                    // TODO: Draw LOGO screen here!
-                    DrawText("LOGO SCREEN", 20, 20, 40, LIGHTGRAY);
-                    DrawText("WAIT for 2 SECONDS...", 290, 220, 20, GRAY);
+            // Draw sprite_sheet required frame rectangle
+            if (active) DrawTextureRec(sprite_sheet, frameRec, position, WHITE);
 
-                } break;
-                case TITLE:
-                {
-                    // TODO: Draw TITLE screen here!
-                    DrawRectangle(0, 0, screenWidth, screenHeight, GREEN);
-                    DrawText("TITLE SCREEN", 20, 20, 40, DARKGREEN);
-                    DrawText("PRESS ENTER or TAP to JUMP to GAMEPLAY SCREEN", 120, 220, 20, DARKGREEN);
-
-                } break;
-                case GAMEPLAY:
-                {
-                    // TODO: Draw GAMEPLAY screen here!
-                    DrawRectangle(0, 0, screenWidth, screenHeight, PURPLE);
-                    DrawText("GAMEPLAY SCREEN", 20, 20, 40, MAROON);
-                    DrawText("PRESS ENTER or TAP to JUMP to ENDING SCREEN", 130, 220, 20, MAROON);
-
-                } break;
-                case ENDING:
-                {
-                    // TODO: Draw ENDING screen here!
-                    DrawRectangle(0, 0, screenWidth, screenHeight, BLUE);
-                    DrawText("ENDING SCREEN", 20, 20, 40, DARKBLUE);
-                    DrawText("PRESS ENTER or TAP to RETURN to TITLE SCREEN", 120, 220, 20, DARKBLUE);
-
-                } break;
-                default: break;
-            }
-            EndDrawing();
-
-        }
+        EndDrawing();
         //----------------------------------------------------------------------------------
     }
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
+    UnloadTexture(sprite_sheet);   // Unload texture
 
-    // TODO: Unload all loaded data (textures, fonts, audio) here!
-
-    CloseWindow();        // Close window and OpenGL context
+    CloseWindow();              // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 
     return true;
