@@ -1,117 +1,126 @@
-/*******************************************************************************************
-*
-*   raylib [textures] example - sprite sprite_sheet
-*
-*   Example originally created with raylib 2.5, last time updated with raylib 3.5
-*
-*   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
-*   BSD-like license that allows static linking with closed source software
-*
-*   Copyright (c) 2019-2024 Anata and Ramon Santamaria (@raysan5)
-*
-********************************************************************************************/
-#include <stdbool.h>
 #include "raylib.h"
 
-#define NUM_FRAMES_PER_LINE     5
-#define NUM_LINES               5
+#define SPRITE_SHEET_WIDTH      4
+#define SPRITE_SHEET_HEIGHT     4
 
-//------------------------------------------------------------------------------------
-// Program main entry point
-//------------------------------------------------------------------------------------
-bool main(void)
-{
-    // Initialization
-    //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+typedef enum AnimationState {
+    IDLE=0,
+    WALK_LEFT,
+    WALK_RIGHT,
+    WALK_UP,
+    WALK_DOWN
+} AnimationState;
 
-    InitWindow(screenWidth, screenHeight, "raylib [textures] example - sprite sprite_sheet");
+typedef struct Player {
+    Texture2D sprite_sheet;
+    Rectangle sprite_frame;
+    AnimationState animation_state;
+    Vector2 position;
+    int sprite_iterator;
+    int frame_iterator;
+} Player;
 
-    // Load sprite_sheet texture
-    char filepath[] = "assets/ninja_adventure_assets/Actor/Characters/NinjaGreen/SpriteSheet.png";
+void update_player(Player *player);
+
+
+int main(void){
+    const int screen_width = 160;
+    const int screen_height = 160;
+
+    InitWindow(screen_width, screen_height, "raylib - sprite test");
+
+    // Load sprite_sheet texture:
+    char filepath[] = "assets/ninja_adventure_assets/Actor/Characters/NinjaGreen/SeparateAnim/Walk.png";
     Texture2D sprite_sheet = LoadTexture(filepath);
 
-    // Init variables for animation
-    float frameWidth = (float)(sprite_sheet.width/NUM_FRAMES_PER_LINE);   // Sprite one frame rectangle width
-    float frameHeight = (float)(sprite_sheet.height/NUM_LINES);           // Sprite one frame rectangle height
-    int currentFrame = 0;
-    int currentLine = 0;
+    // Initialize sprite_frame:
+    float sprite_width = (float)(sprite_sheet.width/SPRITE_SHEET_WIDTH);
+    float sprite_height = (float)(sprite_sheet.height/SPRITE_SHEET_HEIGHT);
+    Rectangle sprite_frame = {.x=0, .y=0, .width=sprite_width, .height=sprite_height};
+    
+    // Initialize position:
+    Vector2 position = {
+        .x=(float)(screen_width/2.0f), .y=(float)(screen_height/2.0f)
+    };
 
-    Rectangle frameRec = { 0, 0, frameWidth, frameHeight };
-    Vector2 position = { 0.0f, 0.0f };
-
-    bool active = false;
-    int framesCounter = 0;
+    // Initialize Player:
+    Player player = {
+        .sprite_sheet = sprite_sheet,
+        .sprite_frame = sprite_frame,
+        .animation_state = IDLE,
+        .position = position,
+        .sprite_iterator = 0,
+        .frame_iterator = 0,
+    };
+    Player* player_ptr = &player;
 
     SetTargetFPS(120);
-    //--------------------------------------------------------------------------------------
 
     // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
-    {
-        // Update
-        //----------------------------------------------------------------------------------
+    while (!WindowShouldClose()){
 
-        // Check for mouse button pressed and activate sprite_sheet (if not active)
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !active)
-        {
-            position = GetMousePosition();
-            active = true;
+        update_player(player_ptr);
 
-            position.x -= frameWidth/2.0f;
-            position.y -= frameHeight/2.0f;
-
-        }
-
-        // Compute sprite_sheet animation frames
-        if (active)
-        {
-            framesCounter++;
-
-            if (framesCounter > 2)
-            {
-                currentFrame++;
-
-                if (currentFrame >= NUM_FRAMES_PER_LINE)
-                {
-                    currentFrame = 0;
-                    currentLine++;
-
-                    if (currentLine >= NUM_LINES)
-                    {
-                        currentLine = 0;
-                        active = false;
-                    }
-                }
-
-                framesCounter = 0;
-            }
-        }
-
-        frameRec.x = frameWidth*currentFrame;
-        frameRec.y = frameHeight*currentLine;
-        //----------------------------------------------------------------------------------
-
-        // Draw
-        //----------------------------------------------------------------------------------
         BeginDrawing();
 
             ClearBackground(RAYWHITE);
 
             // Draw sprite_sheet required frame rectangle
-            if (active) DrawTextureRec(sprite_sheet, frameRec, position, WHITE);
+            DrawTextureRec(player_ptr->sprite_sheet, player_ptr->sprite_frame, player_ptr->position, WHITE);
 
         EndDrawing();
-        //----------------------------------------------------------------------------------
     }
 
     // De-Initialization
-    //--------------------------------------------------------------------------------------
     UnloadTexture(sprite_sheet);   // Unload texture
 
-    CloseWindow();              // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
+    CloseWindow();
 
-    return true;
+    return 0;
+}
+
+void update_player(Player *player){
+    float width = player->sprite_frame.width;
+    float height = player->sprite_frame.height;
+    
+    // Move player:
+    if (IsKeyDown(KEY_LEFT)){
+        player->position.x -= 2.0f;
+        player->sprite_frame.x = 2 * width;
+        player->animation_state = WALK_LEFT;
+    }
+    if (IsKeyDown(KEY_RIGHT)){
+        player->position.x += 2.0f;
+        player->sprite_frame.x = 3 * width;
+        player->animation_state = WALK_RIGHT;
+    }
+    if (IsKeyDown(KEY_UP)){
+        player->position.y -= 2.0f;
+        player->sprite_frame.x = 1 * width;
+        player->animation_state = WALK_UP;
+    }
+    if (IsKeyDown(KEY_DOWN)){
+        player->position.y += 2.0f;
+        player->sprite_frame.x = 0 * width;
+        player->animation_state = WALK_DOWN;
+    }
+    if (IsKeyUp(KEY_LEFT) && IsKeyUp(KEY_RIGHT) && IsKeyUp(KEY_UP) && IsKeyUp(KEY_DOWN)){
+        player->animation_state = IDLE;
+    }
+
+    // Update frame iterator:
+    const int animation_rate = 30;
+    if (player->animation_state == IDLE){
+        player->sprite_iterator = 0;
+    }
+    else { 
+        if (player->frame_iterator % animation_rate == 0) {
+            player->sprite_iterator = ++player->sprite_iterator % 4;
+        }
+    }
+
+    // Update sprite_frame:
+    player->sprite_frame.y = player->sprite_iterator * height;
+
+    player->frame_iterator++;
 }

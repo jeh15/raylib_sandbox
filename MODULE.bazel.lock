@@ -14,8 +14,6 @@
     "https://bcr.bazel.build/modules/bazel_skylib/1.3.0/source.json": "2e0e90f6788740b72f0db3c19c46155a82ec01cfc1527c35b58f3f8f0180da29",
     "https://bcr.bazel.build/modules/buildozer/7.1.1.1/MODULE.bazel": "21c6a7d08e3171d3e13b003407caefe7ebe007693e217a053cc1f49f008ce010",
     "https://bcr.bazel.build/modules/buildozer/7.1.1.1/source.json": "a9ced884dedcf1c45d11052d53d854e368b05aa8fbbf0f983037fbed4d3ea4c6",
-    "https://bcr.bazel.build/modules/eigen/3.4.0/MODULE.bazel": "c0929a2602e407d83edb5dbe7bfc90e0e65f11ce9030466858cb670b89599241",
-    "https://bcr.bazel.build/modules/eigen/3.4.0/source.json": "e9ed671b71d257d306185a65a0e806484b8fbc6abf56ac091450d616f996e8ab",
     "https://bcr.bazel.build/modules/googletest/1.11.0/MODULE.bazel": "3a83f095183f66345ca86aa13c58b59f9f94a2f81999c093d4eeaa2d262d12f4",
     "https://bcr.bazel.build/modules/googletest/1.11.0/source.json": "c73d9ef4268c91bd0c1cd88f1f9dfa08e814b1dbe89b5f594a9f08ba0244d206",
     "https://bcr.bazel.build/modules/platforms/0.0.4/MODULE.bazel": "9b328e31ee156f53f3c416a64f8491f7eb731742655a47c9eec4703a71644aee",
@@ -83,6 +81,34 @@
         "recordedRepoMappingEntries": [
           [
             "apple_support~",
+            "bazel_tools",
+            "bazel_tools"
+          ]
+        ]
+      }
+    },
+    "@@cjson-bazel~//third_party:extensions.bzl%cjson_extension": {
+      "general": {
+        "bzlTransitiveDigest": "plat18Q8bm2mVB1i8eIC1A4RJFBDDY3hwV7RMzORcoc=",
+        "usagesDigest": "TohVWxwcKu1n+wEe3KJVjipRpMb+1cnDZ1Vbl4oE9w8=",
+        "recordedFileInputs": {},
+        "recordedDirentsInputs": {},
+        "envVariables": {},
+        "generatedRepoSpecs": {
+          "archive_cjson": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_archive",
+            "attributes": {
+              "build_file": "@@cjson-bazel~//third_party/cjson:BUILD.bazel",
+              "strip_prefix": "cJSON-1.7.18",
+              "url": "https://github.com/DaveGamble/cJSON/archive/refs/tags/v1.7.18.tar.gz",
+              "integrity": "sha256-OqgGhEoDRCwAdpuD6ZlwvnD77wNzX/iY9IEd0DufXuU="
+            }
+          }
+        },
+        "recordedRepoMappingEntries": [
+          [
+            "cjson-bazel~",
             "bazel_tools",
             "bazel_tools"
           ]

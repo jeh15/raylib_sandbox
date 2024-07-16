@@ -1,0 +1,6 @@
+filegroup(
+    name = "json_maps",
+    srcs = glob(["**"]),
+    visibility = ["//visibility:public"],
+)
+

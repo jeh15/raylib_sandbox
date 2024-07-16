@@ -6,15 +6,20 @@ module(
     name = "raylib_sandbox",
 )
 
-# Eigen Library:
-bazel_dep(name = "eigen", version = "3.4.0")
-
 # Raylib Library:
 bazel_dep(name = "raylib-bazel")
 archive_override(
     module_name = "raylib-bazel",
     strip_prefix = "raylib-bazel-main",
     urls = "https://github.com/jeh15/raylib-bazel/archive/refs/heads/main.zip",
+)
+
+# cJSON Library:
+bazel_dep(name = "cjson-bazel")
+archive_override(
+    module_name = "cjson-bazel",
+    strip_prefix = "cJSON-bazel-main",
+    urls = "https://github.com/jeh15/cJSON-bazel/archive/refs/heads/main.zip",
 )
 
 # Autocomplete for Bazel:

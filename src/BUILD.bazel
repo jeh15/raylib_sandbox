@@ -8,3 +8,14 @@ cc_binary(
         "@raylib-bazel//:raylib",
     ],
 )
+
+cc_binary(
+    name = "test",
+    srcs = ["test.c"],
+    data = [
+        "//src/maps:json_maps",
+    ],
+    deps = [
+        "@cjson-bazel//:cJSON",
+    ],
+)
