@@ -7,3 +7,14 @@ cc_library(
     ],
     visibility = ["//visibility:public"],
 )
+
+cc_library(
+    name = "map_utils",
+    srcs = ["map_utils.c"],
+    hdrs = ["map_utils.h"],
+    deps = [
+        "@cjson-bazel//:cJSON",
+        ":parse_utils",
+    ],
+    visibility = ["//visibility:public"],
+)

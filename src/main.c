@@ -1,22 +1,16 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "raylib.h"
 #include "cJSON.h"
-#include "utils/parse_utils.h"
+#include "utils/map_utils.h"
 
 #define SPRITE_SHEET_WIDTH      4
 #define SPRITE_SHEET_HEIGHT     4
 #define TILESET_WIDTH           26
 #define TILESET_HEIGHT          22
 #define TILE_SIZE               16
-#define MAX_MAP_SIZE            100
-typedef struct MapData {
-    int width;
-    int height;
-    int tilewidth;
-    int tileheight;
-    int data[MAX_MAP_SIZE];
-} MapData;
+
 typedef enum AnimationState {
     IDLE=0,
     WALK_LEFT,
@@ -35,7 +29,7 @@ typedef struct Player {
 } Player;
 
 void update_player(Player *player);
-void load_map(MapData* map, char* map_filepath);
+void load_map(MapData* map, const char* map_filepath);
 
 
 int main(void){
@@ -54,6 +48,7 @@ int main(void){
     char map_filepath[] = "src/maps/desert_background.json";
     MapData* map = &(MapData) { 0 };
     load_map(map, map_filepath);
+    
 
     // Initialize sprite_frame:
     float sprite_width = (float)(sprite_sheet.width/SPRITE_SHEET_WIDTH);
@@ -81,7 +76,7 @@ int main(void){
     };
     Player* player_ptr = &player;
 
-    SetTargetFPS(30);
+    SetTargetFPS(120);
 
     // Main game loop
     while (!WindowShouldClose()){
@@ -92,28 +87,28 @@ int main(void){
 
             ClearBackground(RAYWHITE);
 
-            // Draw map:
-            int column = 0;
-            int row = 0;
+            // // Draw map:
+            // int column = 0;
+            // int row = 0;
 
-                for (int i = 0; i < (map->height * map->width); i++){
+            // for (int i = 0; i < (map->height * map->width); i++){
 
-                    tile_frame.x = (map->data[i] % TILESET_WIDTH) * tile_width;
-                    tile_frame.y = (map->data[i] % TILESET_WIDTH) * tile_height;
+            //     tile_frame.x = (map->data[i] % TILESET_WIDTH) * tile_width;
+            //     tile_frame.y = (map->data[i] % TILESET_WIDTH) * tile_height;
 
-                    DrawTextureRec(
-                        tile_sheet, 
-                        tile_frame, 
-                        (Vector2){.x = column * TILE_SIZE, .y = row * TILE_SIZE}, 
-                        WHITE
-                    );
+            //     DrawTextureRec(
+            //         tile_sheet, 
+            //         tile_frame, 
+            //         (Vector2){.x = column * TILE_SIZE, .y = row * TILE_SIZE}, 
+            //         WHITE
+            //     );
 
-                    // Update column and row:
-                    column = (column + 1) % map->width;
-                    if (column % map->width == 0){
-                        row = (row + 1) % map->height;
-                    }
-                }
+            //     // Update column and row:
+            //     column = (column + 1) % map->width;
+            //     if (column % map->width == 0){
+            //         row = (row + 1) % map->height;
+            //     }
+            // }
 
             // Draw sprite_sheet required frame rectangle
             DrawTextureRec(player_ptr->sprite_sheet, player_ptr->sprite_frame, player_ptr->position, WHITE);
@@ -174,39 +169,4 @@ void update_player(Player *player){
     player->sprite_frame.y = player->sprite_iterator * height;
 
     player->frame_iterator++;
-}
-
-void load_map(MapData* map, char* map_filepath){
-    cJSON* parsed = parse_file(map_filepath);
-
-    // Initialize map variables:
-    cJSON* layers = NULL;
-    cJSON* layer = NULL;
-    cJSON* width = NULL;
-    cJSON* height = NULL;
-    cJSON* tilewidth = NULL;
-    cJSON* tileheight = NULL;
-
-    // Get values from JSON:
-    tilewidth = cJSON_GetObjectItemCaseSensitive(parsed, "tilewidth");
-    tileheight = cJSON_GetObjectItemCaseSensitive(parsed, "tileheight");
-    height = cJSON_GetObjectItemCaseSensitive(parsed, "height");
-    width = cJSON_GetObjectItemCaseSensitive(parsed, "width");
-
-    // Assign values to struct:
-    map->width = width->valueint;
-    map->height = height->valueint;
-    map->tilewidth = tilewidth->valueint;
-    map->tileheight = tileheight->valueint;
-
-    // Load map data:
-    layers = cJSON_GetObjectItemCaseSensitive(parsed, "layers");
-    cJSON_ArrayForEach(layer, layers) {
-        cJSON* data = cJSON_GetObjectItemCaseSensitive(layer, "data");
-        cJSON* value = NULL;
-        cJSON_ArrayForEach(value, data) {
-            map->data[value->valueint] = value->valueint;
-        }
-    }
-    cJSON_Delete(parsed);
 }

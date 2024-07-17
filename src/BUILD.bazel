@@ -24,6 +24,7 @@ cc_binary(
         "@raylib-bazel//:raylib",
         "@cjson-bazel//:cJSON",
         "//src/utils:parse_utils",
+        "//src/utils:map_utils",
     ],
 )
 
@@ -36,5 +37,6 @@ cc_binary(
     deps = [
         "@cjson-bazel//:cJSON",
         "//src/utils:parse_utils",
+        "//src/utils:map_utils",
     ],
 )
