@@ -1,11 +1,29 @@
+link_options = select({
+    "@bazel_tools//src/conditions:darwin": [
+        "-undefined dynamic_lookup",
+    ],
+    "//conditions:default": [],
+})
+
+copts = select({
+    "@bazel_tools//src/conditions:darwin": [
+        "-fPIC",
+    ],
+    "//conditions:default": [],
+})
+
+
 cc_binary(
     name = "main",
     srcs = ["main.c"],
     data = [
         "//assets/ninja_adventure_assets/Actor/Characters/NinjaGreen:ninja_green_assets",
+        "//assets/ninja_adventure_assets/Backgrounds/Tilesets:tilesets",
     ],
     deps = [
         "@raylib-bazel//:raylib",
+        "@cjson-bazel//:cJSON",
+        "//src/utils:parse_utils",
     ],
 )
 
@@ -17,5 +35,6 @@ cc_binary(
     ],
     deps = [
         "@cjson-bazel//:cJSON",
+        "//src/utils:parse_utils",
     ],
 )

@@ -1,0 +1,9 @@
+cc_library(
+    name = "parse_utils",
+    srcs = ["parse_utils.c"],
+    hdrs = ["parse_utils.h"],
+    deps = [
+        "@cjson-bazel//:cJSON",
+    ],
+    visibility = ["//visibility:public"],
+)
