@@ -19,6 +19,7 @@ cc_binary(
     data = [
         "//assets/ninja_adventure_assets/Actor/Characters/NinjaGreen:ninja_green_assets",
         "//assets/ninja_adventure_assets/Backgrounds/Tilesets:tilesets",
+        "//src/maps:json_maps",
     ],
     deps = [
         "@raylib-bazel//:raylib",

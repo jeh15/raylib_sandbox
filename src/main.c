@@ -1,14 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "raylib.h"
-#include "cJSON.h"
 #include "utils/map_utils.h"
 
 #define SPRITE_SHEET_WIDTH      4
 #define SPRITE_SHEET_HEIGHT     4
-#define TILESET_WIDTH           26
-#define TILESET_HEIGHT          22
+#define TILESET_WIDTH           22
+#define TILESET_HEIGHT          26
 #define TILE_SIZE               16
 
 typedef enum AnimationState {
@@ -36,7 +32,7 @@ int main(void){
     const int screen_width = 160;
     const int screen_height = 160;
 
-    InitWindow(screen_width, screen_height, "raylib - sprite test");
+    InitWindow(screen_width, screen_height, "Render Test");
 
     // Load sprite_sheet texture:
     char sprite_filepath[] = "assets/ninja_adventure_assets/Actor/Characters/NinjaGreen/SeparateAnim/Walk.png";
@@ -48,7 +44,7 @@ int main(void){
     char map_filepath[] = "src/maps/desert_background.json";
     MapData* map = &(MapData) { 0 };
     load_map(map, map_filepath);
-    
+
 
     // Initialize sprite_frame:
     float sprite_width = (float)(sprite_sheet.width/SPRITE_SHEET_WIDTH);
@@ -87,28 +83,28 @@ int main(void){
 
             ClearBackground(RAYWHITE);
 
-            // // Draw map:
-            // int column = 0;
-            // int row = 0;
+            // Draw map:
+            int column = 0;
+            int row = 0;
 
-            // for (int i = 0; i < (map->height * map->width); i++){
+            for (int i = 0; i < (map->height * map->width); i++){
 
-            //     tile_frame.x = (map->data[i] % TILESET_WIDTH) * tile_width;
-            //     tile_frame.y = (map->data[i] % TILESET_WIDTH) * tile_height;
+                tile_frame.x = (int)((map->data[i] - 1) % TILESET_WIDTH * TILE_SIZE);
+                tile_frame.y = (int)(map->data[i] / TILESET_WIDTH * TILE_SIZE);
 
-            //     DrawTextureRec(
-            //         tile_sheet, 
-            //         tile_frame, 
-            //         (Vector2){.x = column * TILE_SIZE, .y = row * TILE_SIZE}, 
-            //         WHITE
-            //     );
+                DrawTextureRec(
+                    tile_sheet, 
+                    tile_frame, 
+                    (Vector2){.x = column * TILE_SIZE, .y = row * TILE_SIZE}, 
+                    WHITE
+                );
 
-            //     // Update column and row:
-            //     column = (column + 1) % map->width;
-            //     if (column % map->width == 0){
-            //         row = (row + 1) % map->height;
-            //     }
-            // }
+                // Update column and row:
+                column = (column + 1) % map->width;
+                if (column % map->width == 0){
+                    row = (row + 1) % map->height;
+                }
+            }
 
             // Draw sprite_sheet required frame rectangle
             DrawTextureRec(player_ptr->sprite_sheet, player_ptr->sprite_frame, player_ptr->position, WHITE);
@@ -131,22 +127,22 @@ void update_player(Player *player){
     
     // Move player:
     if (IsKeyDown(KEY_LEFT)){
-        player->position.x -= 2.0f;
+        player->position.x -= 1.0f;
         player->sprite_frame.x = 2 * width;
         player->animation_state = WALK_LEFT;
     }
     if (IsKeyDown(KEY_RIGHT)){
-        player->position.x += 2.0f;
+        player->position.x += 1.0f;
         player->sprite_frame.x = 3 * width;
         player->animation_state = WALK_RIGHT;
     }
     if (IsKeyDown(KEY_UP)){
-        player->position.y -= 2.0f;
+        player->position.y -= 1.0f;
         player->sprite_frame.x = 1 * width;
         player->animation_state = WALK_UP;
     }
     if (IsKeyDown(KEY_DOWN)){
-        player->position.y += 2.0f;
+        player->position.y += 1.0f;
         player->sprite_frame.x = 0 * width;
         player->animation_state = WALK_DOWN;
     }
