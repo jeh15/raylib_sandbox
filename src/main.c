@@ -6,6 +6,7 @@
 #define TILESET_WIDTH           22
 #define TILESET_HEIGHT          26
 #define TILE_SIZE               16
+#define WINDOW_SCALE            2
 
 typedef enum AnimationState {
     IDLE=0,
@@ -18,6 +19,7 @@ typedef enum AnimationState {
 typedef struct Player {
     Texture2D sprite_sheet;
     Rectangle sprite_frame;
+    Rectangle sprite_frame_scaled;
     AnimationState animation_state;
     Vector2 position;
     int sprite_iterator;
@@ -25,12 +27,11 @@ typedef struct Player {
 } Player;
 
 void update_player(Player *player);
-void load_map(MapData* map, const char* map_filepath);
 
 
 int main(void){
-    const int screen_width = 160;
-    const int screen_height = 160;
+    const int screen_width = 160 * WINDOW_SCALE;
+    const int screen_height = 160 * WINDOW_SCALE;
 
     InitWindow(screen_width, screen_height, "Render Test");
 
@@ -50,11 +51,17 @@ int main(void){
     float sprite_width = (float)(sprite_sheet.width/SPRITE_SHEET_WIDTH);
     float sprite_height = (float)(sprite_sheet.height/SPRITE_SHEET_HEIGHT);
     Rectangle sprite_frame = {.x=0, .y=0, .width=sprite_width, .height=sprite_height};
+    Rectangle sprite_frame_scaled = {
+        .x=0, .y=0, .width=sprite_width * WINDOW_SCALE, .height=sprite_height * WINDOW_SCALE
+    };
 
     // Initialize map tileset:
     float tile_width = (float)(tile_sheet.width/TILESET_WIDTH);
     float tile_height = (float)(tile_sheet.height/TILESET_HEIGHT);
     Rectangle tile_frame = {.x=0, .y=0, .width=tile_width, .height=tile_height};
+    Rectangle tile_frame_scaled = {
+        .x=0, .y=0, .width=tile_width * WINDOW_SCALE, .height=tile_height * WINDOW_SCALE
+    };
     
     // Initialize position:
     Vector2 position = {
@@ -65,6 +72,7 @@ int main(void){
     Player player = {
         .sprite_sheet = sprite_sheet,
         .sprite_frame = sprite_frame,
+        .sprite_frame_scaled = sprite_frame_scaled,
         .animation_state = IDLE,
         .position = position,
         .sprite_iterator = 0,
@@ -91,11 +99,15 @@ int main(void){
 
                 tile_frame.x = (int)((map->data[i] - 1) % TILESET_WIDTH * TILE_SIZE);
                 tile_frame.y = (int)(map->data[i] / TILESET_WIDTH * TILE_SIZE);
+                tile_frame_scaled.x = column * TILE_SIZE * WINDOW_SCALE;
+                tile_frame_scaled.y = row * TILE_SIZE * WINDOW_SCALE;
 
-                DrawTextureRec(
-                    tile_sheet, 
-                    tile_frame, 
-                    (Vector2){.x = column * TILE_SIZE, .y = row * TILE_SIZE}, 
+                DrawTexturePro(
+                    tile_sheet,
+                    tile_frame,
+                    tile_frame_scaled,
+                    (Vector2){ 0 },
+                    0.0,
                     WHITE
                 );
 
@@ -107,7 +119,14 @@ int main(void){
             }
 
             // Draw sprite_sheet required frame rectangle
-            DrawTextureRec(player_ptr->sprite_sheet, player_ptr->sprite_frame, player_ptr->position, WHITE);
+            DrawTexturePro(
+                player_ptr->sprite_sheet,
+                player_ptr->sprite_frame, 
+                player_ptr->sprite_frame_scaled,
+                (Vector2){ 0 },
+                0.0,
+                WHITE
+            );
 
         EndDrawing();
     }
@@ -127,22 +146,22 @@ void update_player(Player *player){
     
     // Move player:
     if (IsKeyDown(KEY_LEFT)){
-        player->position.x -= 1.0f;
+        player->position.x -= 0.5f * WINDOW_SCALE;
         player->sprite_frame.x = 2 * width;
         player->animation_state = WALK_LEFT;
     }
     if (IsKeyDown(KEY_RIGHT)){
-        player->position.x += 1.0f;
+        player->position.x += 0.5f * WINDOW_SCALE;
         player->sprite_frame.x = 3 * width;
         player->animation_state = WALK_RIGHT;
     }
     if (IsKeyDown(KEY_UP)){
-        player->position.y -= 1.0f;
+        player->position.y -= 0.5f * WINDOW_SCALE;
         player->sprite_frame.x = 1 * width;
         player->animation_state = WALK_UP;
     }
     if (IsKeyDown(KEY_DOWN)){
-        player->position.y += 1.0f;
+        player->position.y += 0.5f * WINDOW_SCALE;
         player->sprite_frame.x = 0 * width;
         player->animation_state = WALK_DOWN;
     }
@@ -163,6 +182,10 @@ void update_player(Player *player){
 
     // Update sprite_frame:
     player->sprite_frame.y = player->sprite_iterator * height;
+
+    // Update sprite_frame_scaled:
+    player->sprite_frame_scaled.x = player->position.x;
+    player->sprite_frame_scaled.y = player->position.y;
 
     player->frame_iterator++;
 }

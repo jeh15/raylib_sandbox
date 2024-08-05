@@ -33,9 +33,12 @@ cc_binary(
     name = "test",
     srcs = ["test.c"],
     data = [
+        "//assets/ninja_adventure_assets/Actor/Characters/NinjaGreen:ninja_green_assets",
+        "//assets/ninja_adventure_assets/Backgrounds/Tilesets:tilesets",
         "//src/maps:json_maps",
     ],
     deps = [
+        "@raylib-bazel//:raylib",
         "@cjson-bazel//:cJSON",
         "//src/utils:parse_utils",
         "//src/utils:map_utils",
